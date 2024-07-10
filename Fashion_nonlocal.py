@@ -3,8 +3,8 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 # Lead train and test datasets
-fashion_mnist_train = pd.read_csv("~/Documents/2023-2024/Mai_2024/Version_3Mai/fashion-mnist_train.csv")
-fashion_mnist_test = pd.read_csv("~/Documents/2023-2024/Mai_2024/Version_3Mai/fashion-mnist_test.csv")
+fashion_mnist_train = pd.read_csv("./Datasets/fashion-mnist_train.csv")
+fashion_mnist_test = pd.read_csv("./Datasets/fashion-mnist_test.csv")
 # Separate target and features for training set
 y_train = fashion_mnist_train["label"]
 x_train = fashion_mnist_train.drop(["label"], axis = 1)
