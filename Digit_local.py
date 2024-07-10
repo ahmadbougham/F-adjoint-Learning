@@ -3,8 +3,8 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 # Lead train and test datasets
-mnist_train = pd.read_csv("~/Documents/2023-2024/Mai_2024/Version_3Mai/mnist_train.csv")
-mnist_test = pd.read_csv("~/Documents/2023-2024/Mai_2024/Version_3Mai/mnist_test.csv")
+mnist_train = pd.read_csv("./Datasets/mnist_train.csv")
+mnist_test = pd.read_csv("./Datasets/mnist_test.csv")
 #mnist_test.head(10)
 
 # %%
@@ -323,7 +323,7 @@ if __name__ == "__main__":
     np.random.seed(4) 
   # create model
     MLP_xavier = MultiLayerPerceptron([784,  128, 10], [Sigmoid_Class ,Sigmoid_Class], weight = "xavier")
-    MLP_xavier.fit(x_train, y_train, 10, 128, 0.001, x_test, y_test, regularization = 0, lambd = 0)
+    MLP_xavier.fit(x_train, y_train, 1000, 128, 0.001, x_test, y_test, regularization = 0, lambd = 0)
     # Plot data
     data = [("Training", MLP_xavier.train_logger),("Testing", MLP_xavier.test_logger)]    
     plot_fig(data)
