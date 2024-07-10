@@ -3,8 +3,8 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 # Lead train and test datasets
-mnist_train = pd.read_csv("~/Documents/2023-2024/Mai_2024/Version_3Mai/mnist_train.csv")
-mnist_test = pd.read_csv("~/Documents/2023-2024/Mai_2024/Version_3Mai/mnist_test.csv")
+mnist_train = pd.read_csv("./Datasets/mnist_train.csv")
+mnist_test = pd.read_csv("./Datasets/mnist_test.csv")
 #mnist_test.head(10)
 
 # %%
