@@ -179,14 +179,8 @@ class MultiLayerPerceptron:
                 dXl= TX[l] - TY[l]
                 TX[l]=TX[l]-tau*dXl 
             TY[l]= TX[l]*(self.activations[l].prime(FY[l])) 
-        self.w[l] = self.w[l] - self.alpha * np.dot(TY[l], FX[l-1].T)  
-        reg_matrix_w = np.zeros_like(self.w[l])
-        if self.regg == 1:
-          self.w[l]=self.w[l]+ (self.lambd) * np.sign(self.w[l])
-          pass
-        elif self.regg == 2:
-          self.w[l]= self.w[l]+ 2 * (self.lambd) * self.w[l] 
-    ############################      
+        self.w[l] = self.w[l] - self.alpha * np.dot(TY[l], FX[l-1].T)         
+    ###################################################################################################    
 
   def predict(self, x):
     """
@@ -197,24 +191,12 @@ class MultiLayerPerceptron:
   def evaluate_acc(self, yhat, y):  
     return np.mean(yhat == y)
      
-  def fit(self, x_train, y_train, epochs, mini_batch_size, alpha, x_test, y_test, regularization = 0, lambd = 0):
+  def fit(self, x_train, y_train, epochs, mini_batch_size, alpha, x_test, y_test):
       """
-      main function used to fit the model 
+      Main function used to fit the model 
       """
       self.alpha = alpha
-      self.loss = Cross_Entropy(self.activations[self.num_layers])
-      if regularization == 0:
-        #print("No Reg")
-        self.regg = 0
-        self.lambd = 0
-      elif regularization == 1:      ##Doing L1 Regularization
-        print("L1 Reg")
-        self.regg = 1
-        self.lambd = lambd
-      else: #Do L2 Regularization       #Regularization = 2
-        print("L2 Reg")
-        self.regg = 2
-        self.lambd = lambd
+      self.loss = Cross_Entropy(self.activations[self.num_layers])      
       #Setting up some parameters for graphing!
       self.train_logger = []
       self.test_logger = []
@@ -274,7 +256,7 @@ if __name__ == "__main__":
     np.random.seed(4) 
   # create model
     MLP_xavier = MultiLayerPerceptron([784,  128, 10], [Sigmoid_Class ,Sigmoid_Class], weight = "xavier")
-    MLP_xavier.fit(x_train, y_train, 1000, 128, 0.001, x_test, y_test, regularization = 0, lambd = 0)
+    MLP_xavier.fit(x_train, y_train, 1000, 128, 0.001, x_test, y_test)
     # Plot data
     data = [("Training", MLP_xavier.train_logger),("Testing", MLP_xavier.test_logger)]    
     plot_fig(data)
