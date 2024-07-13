@@ -247,7 +247,7 @@ if __name__ == "__main__":
     np.random.seed(4) 
   # create model
     MLP_xavier = MultiLayerPerceptron([784,  128, 10], [Sigmoid_Class ,Sigmoid_Class], weight = "xavier")
-    MLP_xavier.fit(x_train, y_train, 10, 128, 0.001, x_test, y_test)
+    MLP_xavier.fit(x_train, y_train, 1000, 128, 0.001, x_test, y_test)
     # Plot data
     data = [("Training", MLP_xavier.train_logger),("Testing", MLP_xavier.test_logger)]    
     plot_fig(data)
