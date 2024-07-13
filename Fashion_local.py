@@ -1,8 +1,8 @@
+############## The local learning model trained on the Fashion-mnist dataset ########################
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
-
-######################## Preparation of train and test datasets ########################################""
+######################## Preparation of train and test datasets ######################################
 fashion_mnist_train = pd.read_csv("./Datasets/fashion-mnist_train.csv")
 fashion_mnist_test = pd.read_csv("./Datasets/fashion-mnist_test.csv")
 # Separate target and features for training set
@@ -108,8 +108,7 @@ class MultiLayerPerceptron:
     self.loss = None     
     self.alpha = None   
     self.w = dict()    
-    self.activations = dict()
-    self.lambd = None
+    self.activations = dict()    
     for i in range(1,self.num_layers+1):
       if weight == "zeros":
         self.w[i ] = np.zeros((dimensions[i],dimensions[i-1]+1))
