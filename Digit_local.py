@@ -1,21 +1,18 @@
-# %%
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
-# Lead train and test datasets
+
+######################## Preparation of train and test datasets ########################################""
 mnist_train = pd.read_csv("./Datasets/mnist_train.csv")
 mnist_test = pd.read_csv("./Datasets/mnist_test.csv")
 #mnist_test.head(10)
-
-# %%
-
 # Separate target and features for training set
 y_train = mnist_train['5']
 x_train = mnist_train.drop(['5'], axis = 1)
 # Separate target and features for training set
 y_test = mnist_test['7']
 x_test = mnist_test.drop(['7'], axis = 1)
-# Print shapes of target and features
+# 
 from sklearn.preprocessing import OneHotEncoder
 enc = OneHotEncoder()
 #x_train = x_train.reshape((-1, 28*28))
@@ -28,15 +25,14 @@ y_test = np.array(y_test)
 # Sanity Check
 x_train = x_train.reshape((-1, 28*28)).T
 x_train = x_train.astype('float64')/255
-
+#
 x_test = x_test.reshape((-1, 28*28)).T
 x_test = x_test.astype('float64')/255
-
+#
 y_train = enc.fit_transform(y_train.reshape(-1,1)).toarray().T
 y_test = enc.fit_transform(y_test.reshape(-1,1)).toarray().T
 #print(x_train.shape, y_train.shape)
 
-# %%
 ############################### Defining Activation Function Classes and their methods! ##########################################
 class Relu_Class:
   def activation(z):
@@ -101,26 +97,21 @@ class Cross_Entropy:
   def delta(self, y_true, y_pred):
       return self.prime(y_true, y_pred) * self.activation_fn.prime(y_pred)
 
-# %%
+############################ The MLP-CLASS ############################################
 class MultiLayerPerceptron:
   #Constructor
   def __init__(self, dimensions, activations, weight = "uniform"):
     """
     list of dimensions (input, hidden layer(s), output)
-    list of activation functions (relu, softmax etc) (in the case of 1 hidden layer)
+    list of activation functions (relu, softmax etc)  
     """
-    self.num_layers = len(dimensions)-1 #Tells us the number of layers in the MLP model
-    
-    self.loss = None      #init
-    self.alpha = None   #init
-    # Weights, biases and the activations will be initialized as dictionaries, with the key being the index and the value being the subsequent Matrix
-    self.w = dict()
-    #self.b = dict()
+    self.num_layers = len(dimensions)-1     
+    self.loss = None     
+    self.alpha = None   
+    self.w = dict()    
     self.activations = dict()
     self.lambd = None
-    # initial values for the weights as well as the biases according to the number of layers we have in the model
     for i in range(1,self.num_layers+1):
-      # Starting from index i=1, we initialize weights according to the weight parameter
       if weight == "zeros":
         self.w[i ] = np.zeros((dimensions[i],dimensions[i-1]+1))
       elif weight == "uniform":
@@ -137,43 +128,33 @@ class MultiLayerPerceptron:
         U,S,V= np.linalg.svd(H, full_matrices=False)
         self.w[i ] =np.dot(U,V) 
       else:  
-        self.w[i ] =np.random.randn(dimensions[i],dimensions[i-1]+1) / np.sqrt(dimensions[i])  #Weight matrix set to the |i| X |i+1|
-
-      #Now we init the biases to 0's according to the appropriate dimension
-      #self.b[i + 1] = np.zeros(dimensions[i + 1])
-
-      #Now we init the activations (starting from 1, since 0 will have the x as input)
+        self.w[i ] =np.random.randn(dimensions[i],dimensions[i-1]+1) / np.sqrt(dimensions[i]) 
       self.activations[i] = activations[i-1] 
 
   def F_pass(self, x):
     """
-    Allows us to give an input, and go through the whole network till we reach the outputs
-    Returns a tuple containing the z's and the activations applied onto the z's according to each activation function we've provided
+    Compute the F-propagation pass
     """
-    Yf = dict()  #Creating a dictionary for the z's
-    Xf = dict()  #Creating a dictionary for the a's      ##Note, these dictionaries are for a single forward prop instance
-
-    Xf[0] = np.vstack( (x,np.ones((1,x.shape[1])) ))   #Setting as the first activation, the x's since that is what we will use
-
-    for i in range(1,self.num_layers+1):      #Starting from 1, as all the dictionaries are indexed by 1
-      #Calculating the z's and the a's
-      Yf[i] = np.dot(self.w[i], Xf[i-1])      #Applying the weights to the x's/prev activation to get the next set of values
+    Yf = dict()  
+    Xf = dict()  
+    Xf[0] = np.vstack( (x,np.ones((1,x.shape[1])) ))
+    for i in range(1,self.num_layers+1):     
+      #
+      Yf[i] = np.dot(self.w[i], Xf[i-1])      
       if i !=self.num_layers:
         Xf[i] = np.vstack((self.activations[i].activation(Yf[i]),np.ones((1,self.activations[i].activation(Yf[i]).shape[1])) ) )
       else:
-        Xf[i] = self.activations[i].activation(Yf[i])   #We apply the next activation function on the z we just calculated and put it in the next activation layer to be
-                                                          # calculated in the next iteration for z
-
-    return (Yf, Xf)   #Returning the tuple of z's and a's (to be used in the back prop / for prediction)
+        Xf[i] = self.activations[i].activation(Yf[i])   
+    return (Yf, Xf)   
   def Fstar_pass(self, x, y):
     """
-    Compute the partial derivatives and the error for the final layer, does backpropogation, by propogating the gradients back through the network
+    Compute the F-adjoint pass 
     """
-    Xstar = dict()  #Creating a dictionary for the z's
-    Ystar = dict()  #Creating a dictionary for the a's      ##Note, these dictionaries are for a single forward prop instance
+    Xstar = dict()  
+    Ystar = dict()      
     (Ya, Xa) = self.F_pass(x)
     Xstar[self.num_layers] = self.loss.prime(y, Xa[self.num_layers])
-    #Now we have the back propogation loop!!  ###################################################################### Very Important!!!!!
+    # 
     for i in reversed(range(1, self.num_layers+1)):
       Ystar[i]=Xstar[i]* self.activations[i].prime(Ya[i])
       Xstar[i-1]= np.dot(self.w[i][:,:-1].T, Ystar[i]) 
@@ -181,61 +162,48 @@ class MultiLayerPerceptron:
     
   def Fstar_pass_dyn(self, x, y, tau=0.1):
     """
-    Compute the partial derivatives and the error for the final layer, does backpropogation, by propogating the gradients back through the network
+    The local learning algorithm to compute the Weights
     """ 
     #L= self.num_layers
     (FY, FX) = self.F_pass(x)    
     (TY, TX) =  (FY, FX) 
     TY[self.num_layers] =(FX[self.num_layers]-y)*self.activations[self.num_layers].prime(FY[self.num_layers])  
-    #TY[L] =(FX[L]-y)*self.activations[L].prime(FY[L])
-    #TX[L]=FX[L]
-    #Now we have the back propogation loop!!  ###################################################################### Very Important!!!!!
-    for l in reversed(range(1, self.num_layers+1)):
-        
-        if l!=self.num_layers:
-                            
+    ########################## The local learning algorithm ######################################### 
+    for l in reversed(range(1, self.num_layers+1)):        
+        if l!=self.num_layers:                            
             for  k in range(100):                               
-                dXl= TX[l]  - np.dot( self.w[l+1].T,TY[l+1])#Fstar[f'X*{l+1}']*d_sigma(TX[f'Y{l+1}'])
+                dXl= TX[l]  - np.dot( self.w[l+1].T,TY[l+1])
                 TX[l]=TX[l]-tau*dXl
             TY[l]= TX[l][:-1,:]*(self.activations[l].prime(FY[l]))      
-        else:
-            
-                      
+        else:                     
             for  k in range(100):     
-                dXl= TX[l] - TY[l]#Fstar[f'X*{l}']*d_sigma(TX[f'Y{l}'])
+                dXl= TX[l] - TY[l]
                 TX[l]=TX[l]-tau*dXl 
             TY[l]= TX[l]*(self.activations[l].prime(FY[l])) 
-
-        self.w[l] = self.w[l] - self.alpha * np.dot(TY[l], FX[l-1].T)
-  
+        self.w[l] = self.w[l] - self.alpha * np.dot(TY[l], FX[l-1].T)  
         reg_matrix_w = np.zeros_like(self.w[l])
-
         if self.regg == 1:
           self.w[l]=self.w[l]+ (self.lambd) * np.sign(self.w[l])
           pass
         elif self.regg == 2:
           self.w[l]= self.w[l]+ 2 * (self.lambd) * self.w[l] 
-    ############################        Completed Back Propogation!!!
+    ############################      
 
   def predict(self, x):
     """
     Feeds forward the x to get the output, and returns the argmax
     """
-    (garbage, a) = self.F_pass(x)
+    (g, a) = self.F_pass(x)
     return np.argmax(a[self.num_layers], axis = 0)
-
-  def evaluate_acc(self, yhat, y):  ##Used for evaluating the accuracy, given true y's and predicted y's
+  def evaluate_acc(self, yhat, y):  
     return np.mean(yhat == y)
-
- #Setting up some variables which we skipped over in the initialization which are needed
-   
+     
   def fit(self, x_train, y_train, epochs, mini_batch_size, alpha, x_test, y_test, regularization = 0, lambd = 0):
       """
-      main function used to fit the model using the training data, and then used to test using the evac function
+      main function used to fit the model 
       """
       self.alpha = alpha
-      self.loss = Cross_Entropy(self.activations[self.num_layers])#Cross_Entropy
-      # self.lambd = regularization() Need to fix this!!!!!!!             ######## FIX THIS
+      self.loss = Cross_Entropy(self.activations[self.num_layers])
       if regularization == 0:
         #print("No Reg")
         self.regg = 0
@@ -244,56 +212,39 @@ class MultiLayerPerceptron:
         print("L1 Reg")
         self.regg = 1
         self.lambd = lambd
-
-      else: #Do L2 Regularization       #Regularization = 2,3 4 etc anything
+      else: #Do L2 Regularization       #Regularization = 2
         print("L2 Reg")
         self.regg = 2
         self.lambd = lambd
-
-
-      #Setting up some miscelaneous parameters for graphing!
+      #Setting up some parameters for graphing!
       self.train_logger = []
       self.test_logger = []
       self.cost_logger = []
-
-      ##Starting the SGD!!!
-
+      ##
       for i in range(epochs):
         #Randomizing the data:
         m=x_train.shape[1]
         permutation = np.random.permutation(m)
         shuffled_X = x_train[:,permutation]
         shuffled_y = y_train[:,permutation]       
-        num_complete_minibatches = math.floor(m/mini_batch_size) # number of mini batches of size mini_batch_size in your partitionning
+        num_complete_minibatches = math.floor(m/mini_batch_size) 
         for k in range(num_complete_minibatches+1):
-        ### START CODE HERE ### (approx. 2 lines)
+        ### 
             mini_batch_X = shuffled_X[:,mini_batch_size*(k):mini_batch_size*(k+1)]
-            mini_batch_y = shuffled_y[:,mini_batch_size*(k):mini_batch_size*(k+1)]
-            #Given the indices, now we do a forward pass on them, and then a backward pass
-           # (z_dict, a_dict) = self.F_pass(mini_batch_X)
-
-            #Now using the values in z_dict and a_dict, we do a backward pass to propogate the gradients back to the layers
-            self.Fstar_pass_dyn(mini_batch_X, mini_batch_y)
-            #Done training now
-
+            mini_batch_y = shuffled_y[:,mini_batch_size*(k):mini_batch_size*(k+1)]            
+            self.Fstar_pass_dyn(mini_batch_X, mini_batch_y)            
         #Now we check the training and testing accuracy and run the evaluate_acc function
         training_acc = self.evaluate_acc(self.predict(x_train), np.argmax(y_train,axis = 0))
         testing_acc = self.evaluate_acc(self.predict(x_test), np.argmax(y_test,axis = 0))
-
-        #training_acc = np.mean(self.predict(x_train) == np.argmax(y_train,axis = 1))
-        #testing_acc = np.mean(self.predict(x_test) == np.argmax(y_test,axis = 1))
-
         #Logging the accuracies
         self.train_logger.append(training_acc)
         self.test_logger.append(testing_acc)
-
         # print results for monitoring while training
         print("Epoch {0} train data: {1} %".format(i, 100 * (training_acc)))
         print("Epoch {0} test data: {1} %".format(i, 100 * (testing_acc)))    
-
-
-# %%
-
+############################################# END OF THE MPL-CLASS ###################################
+####################################################################################################
+#To plot the figure
 def plot_fig(data):
     fig,ax = plt.subplots(1,1,figsize=(9,7))
     plt.title("Local F-adjoint model accuracy",fontsize=20,fontweight="bold",pad=25)
@@ -313,7 +264,7 @@ def plot_fig(data):
     ax.tick_params(axis='both',which='major',labelsize=20)
     ax.tick_params(axis='both',which='minor',labelsize=18)
     fig.tight_layout()  
-    fig.savefig("Digit_local.png", format="png") # specify filetype explicitly   
+    fig.savefig("Digit_local.png", format="png")    
     plt.show()
     plt.close()
 
