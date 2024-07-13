@@ -1,7 +1,8 @@
+############## The nonlocal learning model trained on the mnist dataset #########################
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
-# ######################## Preparation of train and test datasets ########################################""
+# ######################## Preparation of train and test datasets ########################################
 mnist_train = pd.read_csv("./Datasets/mnist_train.csv")
 mnist_test = pd.read_csv("./Datasets/mnist_test.csv")
 #mnist_test.head(10)
@@ -109,7 +110,6 @@ class MultiLayerPerceptron:
     self.alpha = None   
     self.w = dict()    
     self.activations = dict()
-    self.lambd = None
     for i in range(1,self.num_layers+1):
       if weight == "zeros":
         self.w[i ] = np.zeros((dimensions[i],dimensions[i-1]+1))
