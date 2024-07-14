@@ -1,8 +1,10 @@
-############## The local learning model trained on the mnist dataset ######
+##########################################################################################
+############## The local learning model trained on the mnist dataset #####################
+##########################################################################################
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
-######################## Preparation of train and test datasets ########################################
+######################## Preparation of train and test datasets ##########################
 mnist_train = pd.read_csv("./Datasets/mnist_train.csv")
 mnist_test = pd.read_csv("./Datasets/mnist_test.csv")
 #mnist_test.head(10)
@@ -33,7 +35,7 @@ y_train = enc.fit_transform(y_train.reshape(-1,1)).toarray().T
 y_test = enc.fit_transform(y_test.reshape(-1,1)).toarray().T
 #print(x_train.shape, y_train.shape)
 
-############################### Defining Activation Function Classes and their methods! ##########################################
+############################### Defining Activation Function Classes and their methods! ##########################
 class Relu_Class:
   def activation(z):
     return np.maximum(0,z)
@@ -75,7 +77,7 @@ class softmax_Class:
   def prime(z):
       return -softmax_Class.activation(z)*softmax_Class.activation(z) + softmax_Class.activation(z)
 
-############################### Defining the Softmax Loss (Cross_Entropy) Class and its related methods #######################################################
+############################### Defining the Softmax Loss (Cross_Entropy) Class and its related methods #####################
 class Cross_Entropy:
   def __init__(self, activation_fn):
       self.activation_fn = activation_fn
@@ -223,8 +225,9 @@ class MultiLayerPerceptron:
         # print results for monitoring while training
         print("Epoch {0} train data: {1} %".format(i, 100 * (training_acc)))
         print("Epoch {0} test data: {1} %".format(i, 100 * (testing_acc)))    
-############################################# END OF THE MPL-CLASS ###################################
-####################################################################################################
+########################################################################################
+################             End of The MLP-Class script          ######################
+########################################################################################
 #To plot the figure
 def plot_fig(data):
     fig,ax = plt.subplots(1,1,figsize=(9,7))
