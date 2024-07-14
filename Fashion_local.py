@@ -76,7 +76,7 @@ class softmax_Class:
   def prime(z):
       return -softmax_Class.activation(z)*softmax_Class.activation(z) + softmax_Class.activation(z)
 
-############################### Defining the Softmax Loss (Cross_Entropy) Class and its related methods #######################################################
+############################### Defining the Softmax Loss (Cross_Entropy) Class and its related methods ###############
 class Cross_Entropy:
   def __init__(self, activation_fn):
       self.activation_fn = activation_fn
