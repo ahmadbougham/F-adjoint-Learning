@@ -1,8 +1,10 @@
+#################################################################################################
 ############## The nonlocal learning model trained on the mnist dataset #########################
+#################################################################################################
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
-# ######################## Preparation of train and test datasets ########################################
+# ######################## Preparation of train and test datasets ###############################
 mnist_train = pd.read_csv("./Datasets/mnist_train.csv")
 mnist_test = pd.read_csv("./Datasets/mnist_test.csv")
 #mnist_test.head(10)
@@ -75,7 +77,7 @@ class softmax_Class:
   def prime(z):
       return -softmax_Class.activation(z)*softmax_Class.activation(z) + softmax_Class.activation(z)
 
-############################### Defining the Softmax Loss (Cross_Entropy) Class and its related methods #######################################################
+############################### Defining the Softmax Loss (Cross_Entropy) Class and its related methods #############
 class Cross_Entropy:
   def __init__(self, activation_fn):
       self.activation_fn = activation_fn
@@ -168,13 +170,13 @@ class MultiLayerPerceptron:
     #######################################################################
     for l in reversed(range(1, self.num_layers+1)):        
         self.w[l] = self.w[l] - self.alpha *  np.dot(Ystar[l], Xb[l- 1].T)          
-    ##########################################################################       
+    #######################################################################      
 
   def predict(self, x):
     """
     Feeds forward the x to get the output, and returns the argmax
     """
-    (garbage, a) = self.F_pass(x)
+    (g, a) = self.F_pass(x)
     return np.argmax(a[self.num_layers], axis = 0)
 
   def evaluate_acc(self, yhat, y):  
@@ -216,7 +218,9 @@ class MultiLayerPerceptron:
         # print results for monitoring while training
         print("Epoch {0} train data: {1} %".format(i, 100 * (training_acc)))
         print("Epoch {0} test data: {1} %".format(i, 100 * (testing_acc)))    
-############################################################################################
+########################################################################################
+################             End of The MLP-Class script          ######################
+########################################################################################
 # To plot figure
 def plot_fig(data):
     fig,ax = plt.subplots(1,1,figsize=(9,7))
