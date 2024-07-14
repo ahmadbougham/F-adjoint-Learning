@@ -1,4 +1,6 @@
+######################################################################################
 ############## The nonlocal learning model trained on the Fashion-mnist dataset ######
+######################################################################################
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
@@ -31,7 +33,7 @@ x_test = x_test.astype('float64')/255
 y_train = enc.fit_transform(y_train.reshape(-1,1)).toarray().T
 y_test = enc.fit_transform(y_test.reshape(-1,1)).toarray().T
 #print(x_train.shape, y_train.shape)
-############################### Defining Activation Function Classes and their methods! ##########################################
+############################### Defining Activation Function Classes and their methods! ######################
 class Relu_Class:
   def activation(z):
     return np.maximum(0,z)
@@ -73,7 +75,7 @@ class softmax_Class:
   def prime(z):
       return -softmax_Class.activation(z)*softmax_Class.activation(z) + softmax_Class.activation(z)
 
-############################### Defining the Softmax Loss (Cross_Entropy) Class and its related methods #######################################################
+############################### Defining the Softmax Loss (Cross_Entropy) Class and its related methods ################
 class Cross_Entropy:
   def __init__(self, activation_fn):
       self.activation_fn = activation_fn
@@ -172,7 +174,7 @@ class MultiLayerPerceptron:
     """
     Feeds forward the x to get the output, and returns the argmax
     """
-    (garbage, a) = self.F_pass(x)
+    (g, a) = self.F_pass(x)
     return np.argmax(a[self.num_layers], axis = 0)
 
   def evaluate_acc(self, yhat, y):  
@@ -214,7 +216,10 @@ class MultiLayerPerceptron:
         # print results for monitoring while training
         print("Epoch {0} train data: {1} %".format(i, 100 * (training_acc)))
         print("Epoch {0} test data: {1} %".format(i, 100 * (testing_acc)))    
-
+########################################################################################
+################             End of The MLP-Class script          ######################
+########################################################################################
+# To plot the figure
 def plot_fig(data):
     fig,ax = plt.subplots(1,1,figsize=(9,7))
     plt.title("Nonlocal F-adjoint model accuracy",fontsize=20,fontweight="bold",pad=25)
