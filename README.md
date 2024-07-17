@@ -1,6 +1,7 @@
 # Learning by F-adjoint
 
 Here, you can find the source code to reproduce the experiments and figures of the paper: Learning by F-adjoint
+http://arxiv.org/abs/2407.11049
 >
 Datasets can be downloaded from the following URL:
 >
