@@ -26,45 +26,18 @@ y_test = np.array(y_test)
 # Sanity Check
 x_train = x_train.reshape((-1, 28*28)).T
 x_train = x_train.astype('float64')/255
-
 x_test = x_test.reshape((-1, 28*28)).T
 x_test = x_test.astype('float64')/255
-
 y_train = enc.fit_transform(y_train.reshape(-1,1)).toarray().T
 y_test = enc.fit_transform(y_test.reshape(-1,1)).toarray().T
-#print(x_train.shape, y_train.shape)
-
 ############################### Defining Activation Function Classes and their methods! ######################
-class Relu_Class:
-  def activation(z):
-    return np.maximum(0,z)
-  def prime(z):
-      z[z<=0] = 0
-      z[z>0] = 1
-      return z
-
-class Leaky_Relu_Class:
-  @staticmethod
-  def activation(z):
-    alpha = 0.1
-    return np.where(z<=0,alpha*z,z)
-  def prime(z):
-    alpha = 0.1
-    return np.where(z<=0,alpha,1)
-
 class Sigmoid_Class:
   @staticmethod
   def activation(z):
       return 1 / (1 + np.exp(-z))
+  @staticmethod
   def prime(z):
       return -Sigmoid_Class.activation(z)*Sigmoid_Class.activation(z)+ Sigmoid_Class.activation(z)
-
-class tanh_Class:
-  @staticmethod
-  def activation(z):
-    return (np.exp(z) - np.exp(-z)) / (np.exp(z) + np.exp(-z))
-  def prime(z):
-    return 1 - np.power(tanh_Class.activation(z), 2)
 
 class softmax_Class:
   @staticmethod
@@ -75,7 +48,6 @@ class softmax_Class:
   @staticmethod
   def prime(z):
       return -softmax_Class.activation(z)*softmax_Class.activation(z) + softmax_Class.activation(z)
-
 ############################### Defining the Softmax Loss (Cross_Entropy) Class and its related methods ###############
 class Cross_Entropy:
   def __init__(self, activation_fn):
@@ -90,14 +62,6 @@ class Cross_Entropy:
       N = y_pred.shape[0]
       loss = -np.sum(y_true*np.log(y_pred+1e-9))/N
       return loss
-
-  @staticmethod
-  def prime(Y, AL):
-      return AL - Y
-
-  def delta(self, y_true, y_pred):
-      return self.prime(y_true, y_pred) * self.activation_fn.prime(y_pred)
-
 ############################ The MLP-CLASS ############################################
 class MultiLayerPerceptron:
   #Constructor
@@ -130,7 +94,7 @@ class MultiLayerPerceptron:
       else:  
         self.w[i ] =np.random.randn(dimensions[i],dimensions[i-1]+1) / np.sqrt(dimensions[i]) 
       self.activations[i] = activations[i-1] 
-
+ ########################## The F-propagation ######################################### 
   def F_pass(self, x):
     """
     Compute the F-propagation pass
@@ -146,6 +110,7 @@ class MultiLayerPerceptron:
       else:
         Xf[i] = self.activations[i].activation(Yf[i])   
     return (Yf, Xf)   
+  ########################## The F-adjoint propagation ######################################### 
   def Fstar_pass(self, x, y):
     """
     Compute the F-adjoint pass 
@@ -159,7 +124,7 @@ class MultiLayerPerceptron:
       Ystar[i]=Xstar[i]* self.activations[i].prime(Ya[i])
       Xstar[i-1]= np.dot(self.w[i][:,:-1].T, Ystar[i]) 
     return (Ystar, Xstar)
-    
+ ########################## The local learning algorithm #########################################     
   def Fstar_pass_dyn(self, x, y, tau=0.1):
     """
     The local learning algorithm to compute the Weights
@@ -167,8 +132,7 @@ class MultiLayerPerceptron:
     #L= self.num_layers
     (FY, FX) = self.F_pass(x)    
     (TY, TX) =  (FY, FX) 
-    TY[self.num_layers] =(FX[self.num_layers]-y)*self.activations[self.num_layers].prime(FY[self.num_layers])  
-    ########################## The local learning algorithm ######################################### 
+    TY[self.num_layers] =(FX[self.num_layers]-y)*self.activations[self.num_layers].prime(FY[self.num_layers])     
     for l in reversed(range(1, self.num_layers+1)):        
         if l!=self.num_layers:                            
             for  k in range(100):                               
@@ -181,8 +145,7 @@ class MultiLayerPerceptron:
                 TX[l]=TX[l]-tau*dXl 
             TY[l]= TX[l]*(self.activations[l].prime(FY[l])) 
         self.w[l] = self.w[l] - self.alpha * np.dot(TY[l], FX[l-1].T)         
-    ###################################################################################################    
-
+  ###################################################################################################   
   def predict(self, x):
     """
     Feeds forward the x to get the output, and returns the argmax
@@ -228,7 +191,6 @@ class MultiLayerPerceptron:
 ################             End of The MLP-Class script          ######################
 ########################################################################################
 #To plot the figure
-
 def plot_fig(data):
     fig,ax = plt.subplots(1,1,figsize=(9,7))
     plt.title("Local F-adjoint model accuracy",fontsize=20,fontweight="bold",pad=25)
@@ -252,8 +214,7 @@ def plot_fig(data):
     plt.show()
     plt.close()
 ##################################################################################################
-if __name__ == "__main__":
-    
+if __name__ == "__main__":    
     import math
     np.random.seed(4) 
   # create model
