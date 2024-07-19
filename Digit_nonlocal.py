@@ -36,37 +36,13 @@ y_test = enc.fit_transform(y_test.reshape(-1,1)).toarray().T
 #print(x_train.shape, y_train.shape)
 
 ############################### Defining Activation Function Classes and their methods! ##########################################
-class Relu_Class:
-  def activation(z):
-    return np.maximum(0,z)
-  def prime(z):
-      z[z<=0] = 0
-      z[z>0] = 1
-      return z
-
-class Leaky_Relu_Class:
-  @staticmethod
-  def activation(z):
-    alpha = 0.1
-    return np.where(z<=0,alpha*z,z)
-  def prime(z):
-    alpha = 0.1
-    return np.where(z<=0,alpha,1)
-
 class Sigmoid_Class:
   @staticmethod
   def activation(z):
       return 1 / (1 + np.exp(-z))
+ @staticmethod
   def prime(z):
       return -Sigmoid_Class.activation(z)*Sigmoid_Class.activation(z)+ Sigmoid_Class.activation(z)
-
-class tanh_Class:
-  @staticmethod
-  def activation(z):
-    return (np.exp(z) - np.exp(-z)) / (np.exp(z) + np.exp(-z))
-  def prime(z):
-    return 1 - np.power(tanh_Class.activation(z), 2)
-
 class softmax_Class:
   @staticmethod
   def activation(x):
@@ -76,29 +52,18 @@ class softmax_Class:
   @staticmethod
   def prime(z):
       return -softmax_Class.activation(z)*softmax_Class.activation(z) + softmax_Class.activation(z)
-
 ############################### Defining the Softmax Loss (Cross_Entropy) Class and its related methods #############
 class Cross_Entropy:
   def __init__(self, activation_fn):
       self.activation_fn = activation_fn
-
   def activation(self, z):
     return self.activation_fn.activation(z)
-
   def loss(y_true, y_pred):
       epsilon=1e-12
       y_pred = np.clip(y_pred, epsilon, 1. - epsilon)
       N = y_pred.shape[0]
       loss = -np.sum(y_true*np.log(y_pred+1e-9))/N
       return loss
-
-  @staticmethod
-  def prime(Y, AL):
-      return AL - Y
-
-  def delta(self, y_true, y_pred):
-      return self.prime(y_true, y_pred) * self.activation_fn.prime(y_pred)
-
 ############################ The MLP-CLASS ############################################
 class MultiLayerPerceptron:
   #Constructor
@@ -131,7 +96,7 @@ class MultiLayerPerceptron:
       else:  
         self.w[i ] =np.random.randn(dimensions[i],dimensions[i-1]+1) / np.sqrt(dimensions[i]) 
       self.activations[i] = activations[i-1] 
-
+############################ The F-propagation  ############################################
   def F_pass(self, x):
     """
     Compute the F-propagation pass
@@ -146,7 +111,8 @@ class MultiLayerPerceptron:
         Xf[i] = np.vstack((self.activations[i].activation(Yf[i]),np.ones((1,self.activations[i].activation(Yf[i]).shape[1])) ) )
       else:
         Xf[i] = self.activations[i].activation(Yf[i])   
-    return (Yf, Xf)   
+    return (Yf, Xf) 
+############################ The F-adjoint propagation  ############################################
   def Fstar_pass(self, x, y):
     """
     Compute the F-adjoint pass 
@@ -159,8 +125,8 @@ class MultiLayerPerceptron:
     for i in reversed(range(1, self.num_layers+1)):
       Ystar[i]=Xstar[i]* self.activations[i].prime(Ya[i])
       Xstar[i-1]= np.dot(self.w[i][:,:-1].T, Ystar[i]) 
-    return (Ystar, Xstar)
-    
+    return (Ystar, Xstar)  
+############################ The nonlocal learning algorithm ############################################
   def Fstar_pass_nonlocal(self, x, y):
     """
     The nonlocal learning rule to compute the weights
@@ -170,15 +136,14 @@ class MultiLayerPerceptron:
     #######################################################################
     for l in reversed(range(1, self.num_layers+1)):        
         self.w[l] = self.w[l] - self.alpha *  np.dot(Ystar[l], Xb[l- 1].T)          
-    #######################################################################      
-
+    #######################################################################     
   def predict(self, x):
     """
     Feeds forward the x to get the output, and returns the argmax
     """
     (g, a) = self.F_pass(x)
     return np.argmax(a[self.num_layers], axis = 0)
-
+    
   def evaluate_acc(self, yhat, y):  
     return np.mean(yhat == y)
    
@@ -192,7 +157,6 @@ class MultiLayerPerceptron:
       self.train_logger = []
       self.test_logger = []
       self.cost_logger = []
-
       for i in range(epochs):
         # Randomizing the data:
         m=x_train.shape[1]
@@ -245,8 +209,7 @@ def plot_fig(data):
     plt.show()
     plt.close()
 ###########################################################################################
-if __name__ == "__main__":
-    
+if __name__ == "__main__":    
     import math
     np.random.seed(4) 
   # create model
