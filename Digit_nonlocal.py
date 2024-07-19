@@ -33,8 +33,6 @@ x_test = x_test.astype('float64')/255
 #
 y_train = enc.fit_transform(y_train.reshape(-1,1)).toarray().T
 y_test = enc.fit_transform(y_test.reshape(-1,1)).toarray().T
-#print(x_train.shape, y_train.shape)
-
 ############################### Defining Activation Function Classes and their methods! ##########################################
 class Sigmoid_Class:
   @staticmethod
@@ -70,7 +68,7 @@ class MultiLayerPerceptron:
   def __init__(self, dimensions, activations, weight = "uniform"):
     """
     list of dimensions (input, hidden layer(s), output)
-    list of activation functions (relu, softmax etc)  
+    list of activation functions (sigmoid, softmax)  
     """
     self.num_layers = len(dimensions)-1     
     self.loss = None     
@@ -136,7 +134,8 @@ class MultiLayerPerceptron:
     #######################################################################
     for l in reversed(range(1, self.num_layers+1)):        
         self.w[l] = self.w[l] - self.alpha *  np.dot(Ystar[l], Xb[l- 1].T)          
-    #######################################################################     
+    ####################################################################### 
+################################ The training loop #######################################
   def predict(self, x):
     """
     Feeds forward the x to get the output, and returns the argmax
@@ -208,7 +207,7 @@ def plot_fig(data):
     fig.savefig("Digit_nonlocal.png", format="png")   
     plt.show()
     plt.close()
-###########################################################################################
+#################################### Driver's code  #######################################################
 if __name__ == "__main__":    
     import math
     np.random.seed(4) 
