@@ -38,7 +38,7 @@ class Sigmoid_Class:
   @staticmethod
   def activation(z):
       return 1 / (1 + np.exp(-z))
- @staticmethod
+  @staticmethod
   def prime(z):
       return -Sigmoid_Class.activation(z)*Sigmoid_Class.activation(z)+ Sigmoid_Class.activation(z)
 class softmax_Class:
@@ -62,6 +62,9 @@ class Cross_Entropy:
       N = y_pred.shape[0]
       loss = -np.sum(y_true*np.log(y_pred+1e-9))/N
       return loss
+    @staticmethod
+  def prime(Y, XL):
+      return (XL - Y)
 ############################ The MLP-CLASS ############################################
 class MultiLayerPerceptron:
   #Constructor
