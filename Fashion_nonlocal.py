@@ -62,6 +62,9 @@ class Cross_Entropy:
       N = y_pred.shape[0]
       loss = -np.sum(y_true*np.log(y_pred+1e-9))/N
       return loss
+    @staticmethod
+  def prime(Y, XL):
+      return (XL - Y)
 ############################ The MLP-CLASS ############################################
 class MultiLayerPerceptron:
   #Constructor
