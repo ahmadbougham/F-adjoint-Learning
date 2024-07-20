@@ -55,7 +55,8 @@ class Cross_Entropy:
 
   def activation(self, z):
     return self.activation_fn.activation(z)
-
+    
+  @staticmethod
   def loss(y_true, y_pred):
       epsilon=1e-12
       y_pred = np.clip(y_pred, epsilon, 1. - epsilon)
